@@ -2,9 +2,9 @@
 use dynasmrt::x64::{ Assembler, Rq };
 use dynasmrt::{ dynasm, DynasmApi, ExecutableBuffer, AssemblyOffset };
 
-use crate::Jit;
 use crate::block::BasicBlock;
 
+/// Function pointer to a block of recompiled code.
 #[repr(transparent)]
 pub struct BlockFunc(pub extern "C" fn() -> usize);
 impl BlockFunc {
@@ -14,41 +14,61 @@ impl BlockFunc {
     pub fn ptr(&self) -> usize { self.0 as usize }
 }
 
+/// Function pointer to a dispatcher block.
 #[repr(transparent)]
 pub struct DispatcherFunc(pub extern "C" fn(block_func: usize) -> RuntimeExitCode);
 impl DispatcherFunc {
     pub fn ptr(&self) -> usize { self.0 as usize }
 }
 
+/// Trampoline into the runtime at the specified recompiled block.
 #[no_mangle]
 pub fn trampoline(ctx: &mut RuntimeContext, func: BlockFunc) -> RuntimeExitCode {
     RuntimeExitCode::from( (ctx.dispatcher.0)(func.ptr()) )
 }
 
+/// Runtime environment and interfaces for recompiled code.
+///
+/// NOTE: Ideally we reserve as few physical registers as possible for this.
 #[repr(C)]
 pub struct RuntimeContext {
+    /// Function pointer to the dispatcher block.
     pub dispatcher: DispatcherFunc,
-    pub _dispatcher: ExecutableBuffer,
 
+    /// Pointer to guest register state.
     pub register_ptr: usize,
+
+    /// Pointer to the base of "fast memory."
     pub fastmem_ptr: usize,
+
+    /// Pointer to the current program status register.
     pub cpsr_ptr: usize,
     pub cycles: usize,
+
+    /// Actual storage for the dispatcher code
+    _dispatcher: ExecutableBuffer,
 }
 impl RuntimeContext {
+    /// The physical register reserved for the CPSR.
     pub const CTX_CPSR:     Rq = Rq::R13;
+    /// The physical register reserved for the base of "fast memory."
     pub const CTX_FASTMEM:  Rq = Rq::R14;
+    /// The physical register reserved for guest register state.
     pub const CTX_REG:      Rq = Rq::R15;
 
+    /// The set of callee-save registers as-defined-by the SysV ABI.
     const CALLEE_SAVE_REGS: [Rq; 6] = [ 
         Rq::RBX, Rq::RBP, Rq::R12, Rq::R13, Rq::R14, Rq::R15
     ];
+    /// The size (in bytes) of the callee-save registers.
     const CALLEE_SAVE_SIZE: usize = Self::CALLEE_SAVE_REGS
         .len() * std::mem::size_of::<usize>();
 
+    /// The set of caller-save registers as-defined-by the SysV ABI.
     const CALLER_SAVE_REGS: [Rq; 7] = [ 
         Rq::RAX, Rq::RCX, Rq::RDX, Rq::R8, Rq::R9, Rq::R10, Rq::R11 
     ];
+    /// The size (in bytes) of the caller-save registers.
     const CALLER_SAVE_SIZE: usize = Self::CALLER_SAVE_REGS
         .len() * std::mem::size_of::<usize>();
 
@@ -111,5 +131,4 @@ impl From<usize> for RuntimeExitCode {
         }
     }
 }
-
 

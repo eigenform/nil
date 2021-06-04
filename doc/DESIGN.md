@@ -41,9 +41,9 @@ which continously lifts basic blocks of not-yet-visited guest code, then
 recompiles and executes them natively on the host.
 
 ## Runtime
-A `nil::runtime::RuntimeContext` enshrines the conventions used during runtime 
-for calling into recompiled code, and the interfaces used by recompiled code
-for interacting with aspects of the guest machine's state.
+A `nil::runtime::RuntimeContext` enshrines the conventions used for calling 
+into our recompiled code, and the interfaces used by recompiled code for 
+interacting with aspects of the guest machine's state.
 
 ### Runtime Interface
 A `RuntimeContext` is initialized with a set of raw pointers which act as
@@ -56,9 +56,6 @@ registers before calling into a recompiled block:
 - A pointer to the base of "fast memory" (guest memory that we identity-map 
   into the virtual address space of the process on the host),
 - A pointer to a value representing a CPU cycle-counter
-- ...
-
-Currently, the runtime interface is defined as:
 
 | Register | Description                                                |
 | -------- | ---------------------------------------------------------- |

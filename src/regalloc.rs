@@ -34,30 +34,11 @@
 //! - Some target instructions may have fixed operands
 //! - Some registers are reserved for interfaces with global state
 //!
-//! # Calling Conventions/Runtime Binary Interface
-//!
-//! | Register | Special Notes                                              |
-//! | -------- | ---------------------------------------------------------- |
-//! | `rax`    | Scratch register. |
-//! | `rbx`    | Scratch register. |
-//! | `rcx`    | Scratch register. |
-//! | `rdx`    | Scratch register. |
-//! | `rsi`    | Unused.           |
-//! | `rdi`    | Unused.           |
-//! | `r8`     | Scratch register. |
-//! | `r9`     | Scratch register. |
-//! | `r10`    | Scratch register. |
-//! | `r11`    | Scratch register. |
-//! | `r12`    | Unused.           |
-//! | `r13`    | Unused.           |
-//! | `r14`    | Unused.           |
-//! | `rbp`    | Reserved. Base of the runtime stack frame. |
-//! | `rsp`    | Reserved. Top of the runtime stack frame.  |
-//! | `r15`    | Reserved. Pointer to registers in [crate::JitState]. |
-//!
 
 use std::fmt;
 use std::collections::{BTreeMap, HashMap};
+
+use crate::runtime::RuntimeContext;
 use crate::ir::*;
 use crate::block::*;
 
@@ -144,7 +125,7 @@ impl RegisterPool {
     pub fn new() -> Self {
         use HostRegister::*;
         RegisterPool { 
-            data: vec![R11, R10, R9, R8, RBX, RDX, RCX, RAX],
+            data: vec![R12, R11, R10, R9, R8, RBX, RDX, RCX, RAX],
         }
     }
 
@@ -297,6 +278,4 @@ pub fn allocate_registers(intervals: &IntervalMap) -> StorageMap {
 
     storage
 }
-
-
 

@@ -17,10 +17,14 @@ use crate::runtime::{ RuntimeContext, RuntimeExitCode, BlockFunc };
 use crate::guest::{ GuestState, GuestMmu, Psr };
 use crate::block::BasicBlock;
 
+/// Top-level emulator state.
 #[repr(C)]
 pub struct Jit {
+    /// The register state associated with this guest machine.
     pub state:  GuestState,
+    /// The virtual MMU associated with this guest machine.
     pub mmu: GuestMmu,
+    /// A cache of previously-visited basic blocks.
     pub cache: HashMap<u32, BasicBlock>,
 }
 
@@ -35,6 +39,7 @@ impl Jit {
 
     pub fn run(&mut self) {
 
+        // Instantiate the runtime context/dispatcher
         let mut ctx = RuntimeContext::new(
             unsafe { self.state.reg.as_ptr() as usize },
             mem::ARENA_BASE,
@@ -43,8 +48,8 @@ impl Jit {
 
         loop {
             let pc = self.state.pc.fetch();
-
             let bb = match self.cache.get(&pc) {
+                // Lift, compile, and cache a block if we haven't seen it
                 None => {
                     let mut new_block = BasicBlock::lift(&self.state, &self.mmu);
                     new_block.prune_dead_vars();
@@ -61,17 +66,19 @@ impl Jit {
                     self.cache.insert(pc, new_block);
                     self.cache.get(&pc).unwrap()
                 },
+                // Otherwise, retrieve the block from the cache
                 Some(block) => block,
             };
 
-            let block_func = BlockFunc::from_block(&bb);
+            // Enter the dispatcher at the current block
             println!("[*] Executing block {:08x}", pc);
-            let res = runtime::trampoline(&mut ctx, block_func);
+            let res = runtime::trampoline(&mut ctx, BlockFunc::from_block(&bb));
             match RuntimeExitCode::from(res) {
                 RuntimeExitCode::NextBlock => {}, 
                 RuntimeExitCode::Halt => break,
             }
         }
+
     }
 }
 
