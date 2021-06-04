@@ -73,7 +73,9 @@ performs the following:
 
 1. Since we call the dispatcher block from Rust, we first need to respect the 
    SysV ABI by pushing the callee-save registers onto the stack.
-2. Move 
+2. Fill out reserved registers with runtime context pointers.
+3. Call into the recompiled block.
+4. Restore the callee-save registers and the stack pointer, then return.
 
 Right now, the dispatcher executes one block at a time, and the flow of 
 execution looks like this:
