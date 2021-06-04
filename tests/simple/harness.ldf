@@ -1,0 +1,50 @@
+ENTRY(_start)
+
+/* This is sort of hacky right now; I just to lay out code *somewhere* */
+
+MEMORY 
+{
+	code : ORIGIN = 0x00000000, LENGTH = 1M
+}
+
+__stack_size = 0x1000;
+
+SECTIONS
+{
+	.init : 
+	{
+		*(.init)
+	} > code
+
+	.text :
+	{
+		*(.text)
+		*(.text.*)
+	} > code
+
+	. = ALIGN(0x1000);
+
+	.bss :
+	{
+		*(.bss)
+	} > code
+
+	. = ALIGN(0x1000);
+
+	/*
+	.stack :
+	{
+		__stack_top = .;
+		. = . + __stack_size;
+		__stack_base = .;
+	} > code
+	*/
+
+	/DISCARD/ :
+	{
+		*(.ARM.exidx*)
+		*(.ARM.attributes)
+		*(.comment)
+	}
+
+}

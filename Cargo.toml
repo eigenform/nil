@@ -1,0 +1,18 @@
+[package]
+name = "nil"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.86"
+dynasmrt = "1.0.1"
+yaxpeax-arch = "0.0.5"
+yaxpeax-x86 = "0.2.2"
+yaxpeax-arm = "0.0.7"
+elf = "0.0.10"
+petgraph = "0.5.1"
+
+[[bin]]
+name = "elfloader"
