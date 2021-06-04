@@ -4,29 +4,6 @@ use dynasmrt::{ dynasm, DynasmApi, ExecutableBuffer, AssemblyOffset };
 
 use crate::Jit;
 use crate::block::BasicBlock;
-use std::mem::size_of;
-
-const CALLEE_SAVE_SIZE: usize = CALLEE_SAVE_REGS.len() * size_of::<usize>();
-const CALLEE_SAVE_REGS: [Rq; 6] = [ 
-    Rq::RBX, 
-    Rq::RBP, 
-    Rq::R12, 
-    Rq::R13, 
-    Rq::R14, 
-    Rq::R15
-];
-
-//const CALLER_SAVE_SIZE: usize = CALLER_SAVE_REGS.len() * size_of::<usize>();
-//const CALLER_SAVE_REGS: [Rq; 7] = [
-//    Rq::RAX, 
-//    Rq::RCX, 
-//    Rq::RDX, 
-//    Rq::R8, 
-//    Rq::R9, 
-//    Rq::R10, 
-//    Rq::R11
-//];
-
 
 #[repr(transparent)]
 pub struct BlockFunc(pub extern "C" fn() -> usize);
@@ -62,6 +39,19 @@ impl RuntimeContext {
     pub const CTX_CPSR:     Rq = Rq::R13;
     pub const CTX_FASTMEM:  Rq = Rq::R14;
     pub const CTX_REG:      Rq = Rq::R15;
+
+    const CALLEE_SAVE_REGS: [Rq; 6] = [ 
+        Rq::RBX, Rq::RBP, Rq::R12, Rq::R13, Rq::R14, Rq::R15
+    ];
+    const CALLEE_SAVE_SIZE: usize = Self::CALLEE_SAVE_REGS
+        .len() * std::mem::size_of::<usize>();
+
+    const CALLER_SAVE_REGS: [Rq; 7] = [ 
+        Rq::RAX, Rq::RCX, Rq::RDX, Rq::R8, Rq::R9, Rq::R10, Rq::R11 
+    ];
+    const CALLER_SAVE_SIZE: usize = Self::CALLER_SAVE_REGS
+        .len() * std::mem::size_of::<usize>();
+
 }
 
 impl RuntimeContext {
@@ -76,18 +66,18 @@ impl RuntimeContext {
             ; push  r13
             ; push  r14
             ; push  r15
-            ; sub   rsp, CALLEE_SAVE_SIZE as _
+            ; sub   rsp, Self::CALLEE_SAVE_SIZE as _
         );
         dynasm!(asm
-            ; mov   Rq(RuntimeContext::CTX_REG as u8), QWORD register_ptr as _
-            ; mov   Rq(RuntimeContext::CTX_FASTMEM as u8), QWORD fastmem_ptr as _
-            ; mov   Rq(RuntimeContext::CTX_CPSR as u8), QWORD cpsr_ptr as _
+            ; mov   Rq(Self::CTX_REG as u8), QWORD register_ptr as _
+            ; mov   Rq(Self::CTX_FASTMEM as u8), QWORD fastmem_ptr as _
+            ; mov   Rq(Self::CTX_CPSR as u8), QWORD cpsr_ptr as _
         );
         dynasm!(asm
             ; call  rsi
         );
         dynasm!(asm
-            ; add   rsp, CALLEE_SAVE_SIZE as _
+            ; add   rsp, Self::CALLEE_SAVE_SIZE as _
             ; pop   r15
             ; pop   r14
             ; pop   r13
