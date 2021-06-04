@@ -1,35 +1,38 @@
 
 ## Terminology
-Here's a quick overview of some project-specific/domain-specific terms that
-I might use when describing things:
+Here's a quick overview of some project/domain-specific terms that I might use 
+when describing things:
 
-- **Frontend/Guest/Source**, refers to the the machine being emulated
+- **Frontend/Guest**: the machine being emulated.
 
-- **Backend/Host/Target**, refers to the machine used to emulate another
+- **Backend/Host/Target**: the machine running the emulator.
 
-- **Instruction Set Architecture (ISA)**, an abstract model of a machine
-  (i.e. `x86_64`, ARM, PowerPC, etc.)
+- **Instruction Set Architecture (ISA)**: an abstract model of a machine
+  (i.e. `x86_64`, ARM, PowerPC, etc).
 
-- **Intermediate Representation (IR)**, an intermediate model of a machine 
-  (more generic than a particular ISA) used to represent guest code
+- **Intermediate Representation (IR)**: an intermediate model of a machine 
+  (more generic than a particular ISA) used to represent guest code.
 
-- **Lifting**, the act of translating from guest code into the IR
+- **Static single assignment form (SSA)**: a property of an IR whose model
+  has a [static, single] storage location for each unique value/variable.
 
-- **Emitting/Recompiling**, the act of translating from the IR into the
-  host ISA
+- **Lifting**: the act of translating from guest code into the IR.
 
-- **Register Allocation**, the process of mapping from abstract storage
-  locations (in the IR) to physical registers in the target ISA
+- **Emitting/Recompiling**: the act of translating from the IR into the
+  host ISA.
 
-- **Basic Block**, an atomic unit of execution in the IR, corresponding to
+- **Register Allocation**: the process of mapping from abstract storage
+  locations (in the IR) to physical registers in the target ISA.
+
+- **Basic Block**: an atomic unit of execution in the IR, corresponding to
   blocks of straight-line code in the guest ISA, terminated by branching 
-  operations
+  operations.
 
-- **Dispatcher**, a function used to call into recompiled code, emitted once
-  during runtime
+- **Dispatcher**: a function used to call into recompiled code, emitted once
+  during runtime.
 
-- **Runtime Interface**, a set of reserved registers holding pointers to the
-  guest machine's state
+- **Runtime Interface**: a set of reserved registers holding pointers to the
+  guest machine's state.
 
 
 ## Top-level Organization
