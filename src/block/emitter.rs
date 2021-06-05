@@ -100,7 +100,26 @@ impl BasicBlock {
                             _ => panic!("unimpl sub32 {:?} {:?}", x, y),
                         }
 
+                        // How to deal with flags?
+                        //if inst.lh_c.is_some() {
+                        //    let c_var = inst.lh_c.unwrap();
+                        //    let c_loc = self.storage.get(&c_var).unwrap();
+                        //    match c_loc {
+                        //        Gpr(c) => { emit!(asm; setc Rb(c)); },
+                        //        _ => panic!("lh_c is a constant?"),
+                        //    }
+                        //}
+                        //if inst.lh_v.is_some() {
+                        //    let v_var = inst.lh_v.unwrap();
+                        //    let v_loc = self.storage.get(&v_var).unwrap();
+                        //    match v_loc {
+                        //        Gpr(v) => { emit!(asm; seto Rb(v)); },
+                        //        _ => panic!("lh_v is a constant?"),
+                        //    }
+                        //}
+
                     },
+
                     ArithOp::Add32(x, y) => {
                         let lh = self.storage.get(&inst.lh.unwrap()).unwrap();
                         let x = self.storage.get(x).unwrap();
@@ -118,17 +137,19 @@ impl BasicBlock {
                             },
                             _ => panic!("unimpl add32 {:?} {:?}", x, y),
                         }
+                        if inst.lh_c.is_some() { unimplemented!(""); }
+                        if inst.lh_v.is_some() { unimplemented!(""); }
+                    },
+                    ArithOp::IsNegative(x) => {
+                        let lh = self.storage.get(&inst.lh.unwrap()).unwrap();
+                        let x = self.storage.get(x).unwrap();
+                        match (lh, x) {
+                            _ => panic!("unimpl is_negative {:?}", x),
+                        }
                     },
 
                     _ => panic!("emitter doesn't implement {:?}", op),
                 },
-                //Operation::Branch(ref op) => match op {
-                //    BranchOp::Branch(addr) => {
-                //        let addr = stor.get(addr).unwrap();
-                //        emit_branch!(asm, addr);
-                //    },
-                //    _ => panic!("emitter doesn't implement {:?}", op),
-                //},
             }
         }
 

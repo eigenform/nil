@@ -52,12 +52,13 @@ impl Jit {
                 // Lift, compile, and cache a block if we haven't seen it
                 None => {
                     let mut new_block = BasicBlock::lift(&self.state, &self.mmu);
-                    new_block.prune_dead_vars();
-                    new_block.recompile();
-
                     println!("[*] Lifted new block {:08x}", pc);
                     new_block.disas_guest();
+
+                    new_block.prune_dead_vars();
                     new_block.disas_ir();
+
+                    new_block.recompile();
                     new_block.disas_host();
                     new_block.storage.print();
                     new_block.intervals.print();

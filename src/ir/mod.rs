@@ -2,19 +2,28 @@ mod fmt;
 
 use crate::guest;
 
+/// Type used to identify a variable in the IR.
 pub type VarId = usize;
 
+/// Representing a particular kind of variable in the IR.
 #[derive(Copy, Clone, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub enum VarKind { 
+    /// Typical block-local variable.
     Local, 
+    /// A constant value.
     Constant(usize), 
+    /// The value of a guest register.
     GuestReg(guest::RegIdx) 
 }
 
+/// An abstract value/variable in the IR.
 #[derive(Copy, Clone, Debug, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub struct Var { 
+    /// Unique identifier for this variable.
     pub id: VarId, 
+    /// The width of this variable in bits.
     pub width: usize, 
+    /// The kind of variable.
     pub kind: VarKind 
 }
 impl Var {
@@ -33,9 +42,12 @@ impl Var {
 
 }
 
+/// A constant value in the IR.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Constant { 
+    /// The width of this value in bits.
     pub width: usize, 
+    /// The value of this constant.
     pub value: usize 
 }
 impl Constant {
@@ -46,12 +58,7 @@ impl Constant {
 }
 
 #[derive(Clone, Debug)]
-pub enum FlagKind { 
-    Negative, 
-    Zero, 
-    Carry, 
-    Overflow 
-}
+pub enum FlagKind { Negative, Zero, Carry, Overflow }
 pub struct Flag { 
     pub kind: FlagKind, 
     pub value: Option<bool> 
@@ -93,7 +100,6 @@ pub enum Operation {
     Memory(MemoryOp),
     Arith(ArithOp),
     Bind(BindOp),
-    //Branch(BranchOp),
 }
 
 #[derive(Clone)]
@@ -136,13 +142,6 @@ impl Instruction {
                     vars.push(*x);
                 },
             },
-            //Operation::Branch(ref op) => match op {
-            //    BranchOp::Branch(v) => vars.push(*v),
-            //    BranchOp::BranchCond(_, t, f) => {
-            //        vars.push(*t);
-            //        vars.push(*f);
-            //    },
-            //},
         }
         vars
     }
@@ -252,20 +251,5 @@ impl Instruction {
             guest_op: opcd,
         }
     }
-
-    //pub fn branch(opcd: u32, x: Var) -> Self {
-    //    Instruction {
-    //        lh: None, lh_c: None, lh_v: None,
-    //        rh: Operation::Branch(BranchOp::Branch(x)),
-    //        guest_op: opcd,
-    //    }
-    //}
-    //pub fn branch_cond(opcd: u32, c: guest::Cond, t: Var, f: Var) -> Self {
-    //    Instruction {
-    //        lh: None, lh_c: None, lh_v: None,
-    //        rh: Operation::Branch(BranchOp::BranchCond(c, t, f)),
-    //        guest_op: opcd,
-    //    }
-    //}
 }
 

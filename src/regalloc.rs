@@ -125,7 +125,7 @@ impl RegisterPool {
     pub fn new() -> Self {
         use HostRegister::*;
         RegisterPool { 
-            data: vec![R12, R11, R10, R9, R8, RBX, RDX, RCX, RAX],
+            data: vec![R12, R11, R10, R9, R8, RBX, RDX, RCX],
         }
     }
 
